@@ -34,6 +34,7 @@ public class Parse {
     }
 
 
+    // exprs.size() must be at least 2
     Pair<Node, Node> parseAlt(ArrayList<Pair<Node,Node>> exprs) {
         Node start = new Node();
         Node end = new Node();
@@ -113,7 +114,7 @@ public class Parse {
             ArrayList<Pair<Node,Node>> store = new ArrayList<>();
             for (int i = 0; i < alts.size(); i++) {
                 int si = (i == 0) ? s : alts.get(i - 1) + 1;
-                int ei = i - 1;
+                int ei = alts.get(i) - 1;
 
                 Pair<Node,Node> expr = parse(si, ei, pattern);
                 store.add(expr);
@@ -148,7 +149,7 @@ public class Parse {
             } else if (c == '[') {
                 int ptr2 = ptr + 1;
 
-                if (ptr2 == '^') {
+                if (pattern.charAt(ptr2) == '^') {
                     ptr2++;
                     while (Character.isLetterOrDigit(pattern.charAt(ptr2))) {
                         ptr2++;
@@ -158,7 +159,7 @@ public class Parse {
                      while (Character.isLetterOrDigit(pattern.charAt(ptr2))) {
                         ptr2++;
                     }
-                    p = parseNegCharGroup(pattern.substring(ptr + 1, ptr2));
+                    p = parsePosCharGroup(pattern.substring(ptr + 1, ptr2));
                 }
 
                 // now ptr 2 is at ], so we want ptr to be at the next char
@@ -173,6 +174,7 @@ public class Parse {
                 p = parseChar(pattern.charAt(ptr));
                 ptr++;
             }
+            assert(p != null);
 
             // now check for unary ops
             if (ptr <= e && isUnaryOp(pattern.charAt(ptr))) {
