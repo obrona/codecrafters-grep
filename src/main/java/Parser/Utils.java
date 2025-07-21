@@ -36,7 +36,7 @@ public class Utils {
                 continue;
             }
 
-            if (ptr == '|') {
+            if (pattern.charAt(ptr) == '|') {
                 out.add(ptr);
             }
             

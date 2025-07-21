@@ -10,7 +10,7 @@ public class StartNode extends Node {
     
     @Override
     public boolean match(int idx, String s) {
-        if (idx != 0) return false;
+        if (idx >= s.length()) return false;
 
         boolean ans = false;
         for (Node n : nexts) {

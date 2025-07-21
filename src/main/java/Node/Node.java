@@ -3,7 +3,6 @@ package Node;
 import java.util.ArrayList;
 
 // represents a node in the automata
-// contains a StartNode and EndNode
 
 // if used, represents a Nothing Node
 // a node that does no matches

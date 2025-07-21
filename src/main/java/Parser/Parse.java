@@ -118,6 +118,10 @@ public class Parse {
                 Pair<Node,Node> expr = parse(si, ei, pattern);
                 store.add(expr);
             }
+
+            Pair<Node,Node> lastExpr = parse(alts.get(alts.size() - 1) + 1, e, pattern);
+            store.add(lastExpr);
+            
             return parseAlt(store); 
         }
 
@@ -161,8 +165,10 @@ public class Parse {
                 ptr = ptr2 + 1;
             } else if (c == '^') {
                 p = parseStartString();
+                ptr++;
             } else if (c == '$') {
                 p = parseEndString();
+                ptr++;
             } else {
                 p = parseChar(pattern.charAt(ptr));
                 ptr++;
@@ -173,8 +179,10 @@ public class Parse {
                 char op = pattern.charAt(ptr);
                 if (op == '?') {
                     p = parseQuestionMark(p);
+                    ptr++;
                 } else if (op == '+') {
                     p = parsePlus(p);
+                    ptr++;
                 }
             }
 
