@@ -33,4 +33,50 @@ public class ComplexExprTest {
 
        
     }
+
+    @Test
+    public void testParseMultipleAlts() {
+        Node n = new Parse("ab|(c(xy)+)|ef").getNFA();
+
+        String s = "xycd";
+        assertFalse(n.match(0,s));
+    }
+
+    @Test
+    public void testParseNested() {
+        Node n = new Parse("ab\\d|(c(xy)+)|(e?fg)").getNFA();
+
+        String s = "xyab1";
+        assertTrue(n.match(0,s));
+
+         String s2 = "xyab";
+        assertFalse(n.match(0,s2));
+    }
+
+    @Test
+    public void testParseNested2() {
+        Node n = new Parse("e?(ab)+(h(ij)?)?c+").getNFA();
+
+        String s = "xyabhic";
+        assertFalse(n.match(0, s));
+
+        String s2 = "xyabhc";
+        assertTrue(n.match(0, s2));
+
+        String s3 = "xyabzzzc";
+        assertFalse(n.match(0, s3));
+
+
+    }
+
+    @Test
+    public void testParseNested3() {
+        Node n = new Parse("(a(bc)?d)+").getNFA();
+
+        String s = "adabcd";
+        assertTrue(n.match(0, s));
+
+        String s2 = "abdc";
+        assertFalse(n.match(0, s2));
+    }
 }
