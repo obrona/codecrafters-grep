@@ -14,6 +14,7 @@ import Node.EndStringNode;
 import Node.PosCharGroupNode;
 import Node.StartNode;
 import Node.StartStringNode;
+import Node.WildcardNode;
 import Node.NegCharGroupNode;
 
 // invariant: each expr has exactly 1 node as the start (entry into the expr) and 1 node
@@ -97,6 +98,11 @@ public class Parse {
         return new Pair<>(n, n);
     }
 
+    Pair<Node,Node> parseWildCard() {
+        Node n = new WildcardNode();
+        return new Pair<>(n, n);
+    }
+
     Pair<Node,Node> concatPair(Pair<Node,Node> expr1, Pair<Node,Node> expr2) {
         if (expr1 == null) return expr2;
         if (expr2 == null) return expr1;
@@ -162,10 +168,13 @@ public class Parse {
             } else if (c == '$') {
                 p = parseEndString();
                 ptr++;
+            } else if (c == '.') {
+                p = parseWildCard();
+                ptr++;
             } else {
                 p = parseChar(pattern.charAt(ptr));
                 ptr++;
-            }
+            } 
             assert(p != null);
 
             // now check for unary ops

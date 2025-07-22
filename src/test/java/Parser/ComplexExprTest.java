@@ -81,6 +81,38 @@ public class ComplexExprTest {
     }
 
     @Test
+    public void testParseNested4() {
+        String pat = "(((ab)+c)|xy)";
+        Parse p = new Parse(pat);
+        Node n = p.getNFA();
+
+        String s = "xyz";
+        assertTrue(n.match(0, s));
+
+        String s2 = "abx";
+        assertFalse(n.match(0, s2));
+
+        String s3 = "abc";
+        assertTrue(n.match(0, s3));
+    }
+
+    @Test
+    public void testParseNested5() {
+        String pat = "((ab)+cd)|(xy)?z";
+        Parse p = new Parse(pat);
+        Node n = p.getNFA();
+
+        String s = "abcd";
+        assertTrue(n.match(0, s));
+
+        String s2 = "acd";
+        assertFalse(n.match(0, s2));
+
+        String s3 = "ab123z";
+        assertTrue(n.match(0, s3));
+    }
+
+    @Test
     public void testWholeGroupOptional() {
         Node n = new Parse("(a(bc)?d)?").getNFA();
 
@@ -101,4 +133,20 @@ public class ComplexExprTest {
         String s2 = "123acd";
         assertTrue(n.match(0, s2));
     }
+
+    @Test
+    public void testComplexWildcard() {
+        Node n = new Parse("(ab)+.+cd|xy").getNFA();
+
+        String s = "xy";
+        assertTrue(n.match(0, s));
+
+        String s2 = "ab1111cd";
+        assertTrue(n.match(0, s2));
+
+        String s3 = "xa111cd";
+        assertFalse(n.match(0, s3));
+    }
+
+    
 }
