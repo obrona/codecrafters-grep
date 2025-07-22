@@ -79,4 +79,26 @@ public class ComplexExprTest {
         String s2 = "abdc";
         assertFalse(n.match(0, s2));
     }
+
+    @Test
+    public void testWholeGroupOptional() {
+        Node n = new Parse("(a(bc)?d)?").getNFA();
+
+        String s = "xxyyzz";
+        assertTrue(n.match(0, s));
+
+        String s2 = "abdc";
+        assertTrue(n.match(0, s2));
+    }
+
+    @Test
+    public void testWholeGroupOptional2() {
+        Node n = new Parse("(a(b|c)?d)+").getNFA();
+
+        String s = "abcd";
+        assertFalse(n.match(0, s));
+
+        String s2 = "123acd";
+        assertTrue(n.match(0, s2));
+    }
 }
