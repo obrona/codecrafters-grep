@@ -3,7 +3,6 @@ package Parser;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static Parser.Utils.getAltOp;
 import static Parser.Utils.matchBraces;
 import Node.Node;
 import Pair.Pair;
@@ -109,30 +108,23 @@ public class Parse {
    
 
     Pair<Node,Node> parse(int s, int e, String pattern) {
-        ArrayList<Integer> alts = getAltOp(s, e, pattern, braces);
-        if (alts.size() > 0) {
-            ArrayList<Pair<Node,Node>> store = new ArrayList<>();
-            for (int i = 0; i < alts.size(); i++) {
-                int si = (i == 0) ? s : alts.get(i - 1) + 1;
-                int ei = alts.get(i) - 1;
-
-                Pair<Node,Node> expr = parse(si, ei, pattern);
-                store.add(expr);
-            }
-
-            Pair<Node,Node> lastExpr = parse(alts.get(alts.size() - 1) + 1, e, pattern);
-            store.add(lastExpr);
-            
-            return parseAlt(store); 
-        }
-
-        // expr is only (), [], letters, digits, \d, \w, ?, +
-        // parse 1-by-1
+        ArrayList<Pair<Node,Node>> alts = new ArrayList<>();
         Pair<Node,Node> expr = null;
 
         int ptr = s;
         while (ptr <= e) {
             char c = pattern.charAt(ptr);
+            
+            // if we encounter a |, expr stores the expr in the branching path so just push into alts
+            if (c == '|') {
+                assert(expr != null);
+                alts.add(expr);
+                
+                expr = null;
+                ptr++;
+                continue;
+            }
+            
             Pair<Node,Node> p = null;
             if (c == '(') {
                 int braceEnd = braces.get(ptr);
@@ -191,8 +183,18 @@ public class Parse {
             expr = concatPair(expr, p);
         }
 
-        return expr;
-
+        // now check the last expr, remember we only add when encountering a |
+        // so the last expr eg. e1|e2 has not been added
+        if (alts.size() > 0) {
+            alts.add(expr);
+        }
+        
+        // now check if we have alts
+        if (alts.size() > 0) {
+            return parseAlt(alts);
+        } else {
+            return expr;
+        }
     }
 
     public Node getNFA() {
