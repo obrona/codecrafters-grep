@@ -16,6 +16,7 @@ import Node.StartNode;
 import Node.StartStringNode;
 import Node.WildcardNode;
 import Node.NegCharGroupNode;
+import State.State;
 
 // invariant: each expr has exactly 1 node as the start (entry into the expr) and 1 node
 // as the end (exit from the expr)
@@ -214,7 +215,10 @@ public class Parse {
         expr.second.addNext(end);
         return n;
     }
+
+    public boolean match(State state) {
+        return getNFA().match(state);
+    }
  
 
 }
-

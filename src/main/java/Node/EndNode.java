@@ -1,6 +1,6 @@
 package Node;
 
-import java.lang.Thread.State;
+import State.State;
 
 public class EndNode extends Node {
 

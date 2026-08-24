@@ -1,6 +1,6 @@
 package Node;
 
-import State.State
+import State.State;
 
 // for the start string anchor ^
 public class StartStringNode extends Node {

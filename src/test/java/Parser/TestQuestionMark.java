@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import Node.Node;
+import State.State;
 
 public class TestQuestionMark {
     @Test
@@ -14,9 +15,9 @@ public class TestQuestionMark {
         Node n = p.getNFA();
 
         String s = "b";
-        assertTrue(n.match(0, s));
+        assertTrue(n.match(new State(s)));
 
         String s2 = "a";
-        assertTrue(n.match(0, s2));
+        assertTrue(n.match(new State(s2)));
     }
 }

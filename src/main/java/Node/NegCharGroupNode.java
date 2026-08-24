@@ -18,6 +18,7 @@ public class NegCharGroupNode extends Node {
     public boolean match(State state) {
         if (!state.matchNegCharGroup(charSet)) return false;
 
+        state.advanceCurrIdx();
         boolean ans = false;
         for (Node n : nexts) {
             ans |= n.match(state);

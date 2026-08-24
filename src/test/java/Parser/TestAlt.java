@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import Node.Node;
+import State.State;
 
 public class TestAlt {
      @Test
@@ -15,10 +16,10 @@ public class TestAlt {
         Node n = parse.getNFA();
 
         String s = "cat";
-        assertTrue(n.match(0, s));
+        assertTrue(n.match(new State(s)));
 
         String s2 = "dog";
-        assertFalse(n.match(0, s2));
+        assertFalse(n.match(new State(s2)));
     }
 
     @Test
@@ -28,13 +29,13 @@ public class TestAlt {
         Node n = parse.getNFA();
 
         String s = "12cat34";
-        assertTrue(n.match(0, s));
+        assertTrue(n.match(new State(s)));
 
         String s2 = "dogcat";
-        assertTrue(n.match(0, s2));
+        assertTrue(n.match(new State(s2)));
 
         String s3 = "squid game";
-        assertFalse(n.match(0, s3));
+        assertFalse(n.match(new State(s3)));
     }
 
     @Test
@@ -44,9 +45,9 @@ public class TestAlt {
         Node n = p.getNFA();
 
         String s = "cat";
-        assertTrue(n.match(0, s));
+        assertTrue(n.match(new State(s)));
 
         String s2 = "dog";
-        assertFalse(n.match(0, s2));
+        assertFalse(n.match(new State(s2)));
     }
 }

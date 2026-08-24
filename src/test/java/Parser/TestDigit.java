@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import Node.Node;
+import State.State;
 
 public class TestDigit {
     @Test
@@ -15,10 +16,10 @@ public class TestDigit {
         Node n = parse.getNFA();
         
         String s = "11 dogs";
-        assertTrue(n.match(0, s));
+        assertTrue(n.match(new State(s)));
 
         String s2 = "1a dogs";
-        assertFalse(n.match(0, s2));
+        assertFalse(n.match(new State(s2)));
     }
 
 }

@@ -1,6 +1,6 @@
 
 import Parser.Parse;
-import Node.Node;
+import State.State;
 
 public class Main {
     public static void main(String[] args) {
@@ -8,7 +8,6 @@ public class Main {
         Parse parse = new Parse(pattern);
 
         String s = "cat";
-        Node n = parse.getNFA();
-        System.out.println(n.match(0, s));
+        System.out.println(parse.match(new State(s)));
     }
 }

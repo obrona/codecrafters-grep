@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import Node.Node;
+import State.State;
 
 public class TestAlphaNumeric {
      @Test
@@ -15,12 +16,12 @@ public class TestAlphaNumeric {
         Node n = parse.getNFA();
         
         String s = "a";
-        assertTrue(n.match(0, s));
+        assertTrue(n.match(new State(s)));
 
         String s2 = "#";
-        assertFalse(n.match(0, s2));
+        assertFalse(n.match(new State(s2)));
 
         String s3 = "##ab";
-        assertTrue(n.match(0, s3));
+        assertTrue(n.match(new State(s3)));
     }
 }
