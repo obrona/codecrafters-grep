@@ -1,12 +1,17 @@
-### Grammer
+### Grammar
 * \d: match [0-9]
 * \w: match [a-z],[A-Z],[0-9] and _
 * ^
 * $
-* \+
+* \+: match one or more times
 * ?
 * |
-* {n,m}: match pattern at least n and at most m times. n cannot be 0.
+* \*: match zero or more times
+* {n,m}: match at least n and at most m times
+* {n}: match exactly n times
+* {n,}: match at least n times
+
+Expressions quantified by `*`, `+`, or `{...}` must consume at least one character on every successful match. Zero-width quantified expressions such as `(a?)*`, `(a?)+`, and `(a?){2,}` are invalid and may cause infinite recursion. An expression such as `(ab?){2}` is valid because every repetition consumes at least the mandatory `a`.
 
 ### Rules
 * no \+\+

@@ -202,7 +202,8 @@ public class Parse {
                 } else if (op == '{') {
                     int end = braces.get(ptr);
                     int[] range = Utils.getRangeForQuantiferString(pattern.substring(ptr + 1, end));
-                    p = parseQuantifierNode(expr, range[0], range[1]);
+                    p = parseQuantifierNode(p, range[0], range[1]);
+                    ptr = end + 1;
                 }
             }
 

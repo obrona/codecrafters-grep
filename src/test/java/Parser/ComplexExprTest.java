@@ -149,5 +149,15 @@ public class ComplexExprTest {
         assertFalse(n.match(new State(s3)));
     }
 
+    @Test
+    public void testComplexKleeneStarAndQuantifier() {
+        Node n = new Parse("^(ab)*c{2,4}(de?){2,3}f$").getNFA();
+
+        assertTrue(n.match(new State("ccddf")));
+        assertTrue(n.match(new State("ababccccdeddef")));
+        assertFalse(n.match(new State("abcddf")));
+        assertFalse(n.match(new State("ababccdef")));
+    }
+
     
 }
