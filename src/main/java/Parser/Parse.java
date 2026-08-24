@@ -50,10 +50,8 @@ public class Parse {
     }
 
     Pair<Node,Node> parsePlus(Pair<Node,Node> expr) {
-        Node repeat = new Node();
-        expr.second.addNext(repeat);
-        repeat.addNext(expr.first);
-        return new Pair<>(expr.first, repeat);
+        expr.second.addNext(expr.first);
+        return expr;
     }
 
     Pair<Node,Node> parseQuestionMark(Pair<Node,Node> expr) {

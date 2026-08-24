@@ -13,6 +13,12 @@
 
 Expressions quantified by `*`, `+`, or `{...}` must consume at least one character on every successful match. Zero-width quantified expressions such as `(a?)*`, `(a?)+`, and `(a?){2,}` are invalid and may cause infinite recursion. An expression such as `(ab?){2}` is valid because every repetition consumes at least the mandatory `a`.
 
+For backreferences, capture group are numbered by the preorder traversal of the () tree.<br>
+Eg for reference ((a)(b))
+1. ((a)(b))
+2. (a)
+3. (b) 
+
 ### Rules
 * no \+\+
 * no ?\+ eg. a?\+

@@ -5,6 +5,7 @@ import Node.QuantifierNode;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
+import java.util.ArrayList;
 
 public class State {
     private final String word;
@@ -15,6 +16,8 @@ public class State {
 
     private final HashMap<QuantifierNode, Integer> quantiferNodeStore = new HashMap<>();
 
+    private final HashMap<Integer, ArrayList<Integer>> captureGroupRange = new HashMap<>();
+
     public State(String word) {
         this.word = word;
         this.startIdx = 0;
@@ -24,6 +27,11 @@ public class State {
     public void advanceCurrIdx() {
         currIdx++;
         undoStack.add(() -> currIdx--);
+    }
+
+    public void advanceCurrIdx(int len) {
+        currIdx += len;
+        undoStack.add(() -> currIdx -= len);
     }
 
     public void advanceStartIdx() {
@@ -44,6 +52,21 @@ public class State {
 
     public int getQuantifierNodeCnt(QuantifierNode node) {
         return quantiferNodeStore.getOrDefault(node, 0);
+    }
+
+    public void startCapture(int id) {
+        captureGroupRange.getOrDefault(id, new ArrayList<>()).add(currIdx);
+        undoStack.add(() -> captureGroupRange.get(id).removeLast());
+    }
+
+    public void endCapture(int id) {
+        captureGroupRange.get(id).add(currIdx);
+        undoStack.add(() -> captureGroupRange.get(id).removeLast());
+    }
+
+    public int getCaptureLen(int id) {
+        ArrayList<Integer> r = captureGroupRange.get(id);
+        return r.get(1) - r.get(0);
     }
 
     public boolean isEnd() {
@@ -100,5 +123,13 @@ public class State {
 
     public boolean matchEndString() {
         return currIdx == word.length();
+    }
+
+    public boolean matchBackReference(int id) {
+        ArrayList<Integer> range = captureGroupRange.get(id);
+        int s = range.get(0), e = range.get(1), len = e - s;
+        if (word.length() - currIdx < len) return false;
+        if (word.substring(currIdx, currIdx + len) != word.substring(s, e)) return false;
+        return true;
     }
 }
