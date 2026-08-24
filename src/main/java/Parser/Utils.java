@@ -1,23 +1,35 @@
 package Parser;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import Pair.Pair;
 
 public class Utils {
 
-    // get the matching brace, for both start brace and end brace
+    static boolean isStartBrace(char c) {
+        return c == '(' || c == '[' || c == '{';
+    }
+
+    static boolean isEndBrace(char c) {
+        return c == ')' || c == ']' || c == '}';
+    }
+
+    // get the matching brace, for both start brace and end brace.
+    // for all braces type eg (), [], {}
     public static HashMap<Integer, Integer> matchBraces(String pattern) {
         HashMap<Integer, Integer> out = new HashMap<>();
-        ArrayList<Integer> stack = new ArrayList<>();
+        ArrayList<Pair<Integer, Character>> stack = new ArrayList<>();
         
         for (int i = 0; i < pattern.length(); i++) {
-            if (pattern.charAt(i) == '(') {
-                stack.add(i);
-            } else if (pattern.charAt(i) == ')') {
-                int pos = stack.remove(stack.size() - 1);
-                out.put(pos, i);
-                out.put(i, pos);
+            char c = pattern.charAt(i);
+            if (isStartBrace(c)) {
+                stack.add(new Pair<>(i, c));
+            } else if (isEndBrace(c)) {
+                Pair<Integer, Character> p = stack.removeLast();
+                out.put(p.first, i);
+                out.put(i, p.first);
             }
         }
 
@@ -67,7 +79,23 @@ public class Utils {
         }
 
         return out;
+    }
 
+    public static int[] getRangeForQuantiferString(String s) {
+        if (!s.contains(",")) {
+            int n = Integer.parseInt(s);
+            return new int[] {n, n};
+        } else {
+            int[] ans = Arrays.stream(s.split(","))
+                .map(String::trim)
+                .mapToInt(Integer::parseInt)
+                .toArray();
+            if (ans.length == 1) {
+                return new int[] {ans[0], 2000000000};
+            } else {
+                return ans;
+            }
+        }
     }
 }
     

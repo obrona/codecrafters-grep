@@ -1,5 +1,8 @@
 package State;
 
+import Node.QuantifierNode;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
 
@@ -8,13 +11,14 @@ public class State {
     private int startIdx;
     private int currIdx;
     
-    private final Stack<Runnable> undoStack;
+    private final Stack<Runnable> undoStack = new Stack<>();
+
+    private final HashMap<QuantifierNode, Integer> quantiferNodeStore = new HashMap<>();
 
     public State(String word) {
         this.word = word;
         this.startIdx = 0;
         this.currIdx = startIdx;
-        undoStack = new Stack<>();
     }
 
     public void advanceCurrIdx() {
@@ -30,6 +34,16 @@ public class State {
             startIdx--;
             currIdx = temp;
         });
+    }
+
+    public void incrementQuantifierNode(QuantifierNode node) {
+       int cnt = quantiferNodeStore.getOrDefault(node, 0);
+       quantiferNodeStore.put(node, cnt + 1);
+       undoStack.add(() -> quantiferNodeStore.put(node, cnt));
+    }
+
+    public int getQuantifierNodeCnt(QuantifierNode node) {
+        return quantiferNodeStore.getOrDefault(node, 0);
     }
 
     public boolean isEnd() {

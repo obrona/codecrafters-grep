@@ -12,6 +12,7 @@ import Node.DigitNode;
 import Node.EndNode;
 import Node.EndStringNode;
 import Node.PosCharGroupNode;
+import Node.QuantifierNode;
 import Node.StartNode;
 import Node.StartStringNode;
 import Node.WildcardNode;
@@ -31,7 +32,7 @@ public class Parse {
     }
 
     boolean isUnaryOp(char c) {
-        return c == '?' || c == '+' || c == '*';
+        return c == '?' || c == '+' || c == '*' || c == '{';
     }
 
 
@@ -72,6 +73,13 @@ public class Parse {
         expr.second.addNext(end);
         end.addNext(expr.first);
         return new Pair<>(start, end);
+    }
+
+    Pair<Node,Node> parseQuantifierNode(Pair<Node,Node> expr, int n, int m) {
+        QuantifierNode node = new QuantifierNode(n, m);
+        node.addRepeat(expr.first);
+        expr.second.addNext(node);
+        return new Pair<>(node, node);
     }
 
     Pair<Node,Node> parseChar(char c) {
@@ -147,6 +155,14 @@ public class Parse {
                 int braceEnd = braces.get(ptr);
                 p = parse(ptr + 1, braceEnd - 1, pattern);
                 ptr = braceEnd + 1;
+            } else if (c == '[') {
+                int end = braces.get(ptr);
+                if (pattern.charAt(ptr + 1) == '^') {
+                    p = parseNegCharGroup(pattern.substring(ptr + 2, end));
+                } else {
+                    p = parsePosCharGroup(pattern.substring(ptr + 1, end));
+                }
+                ptr = end + 1;
             } else if (c == '\\') {
                 int charClass = pattern.charAt(ptr + 1);
                 if (charClass == 'd') {
@@ -155,24 +171,6 @@ public class Parse {
                     p = parseAlphaNumeric();
                 }
                 ptr += 2;
-            } else if (c == '[') {
-                int ptr2 = ptr + 1;
-
-                if (pattern.charAt(ptr2) == '^') {
-                    ptr2++;
-                    while (Character.isLetterOrDigit(pattern.charAt(ptr2))) {
-                        ptr2++;
-                    }
-                    p = parseNegCharGroup(pattern.substring(ptr + 2, ptr2)); // + 2 because it is [^ab]
-                } else {
-                     while (Character.isLetterOrDigit(pattern.charAt(ptr2))) {
-                        ptr2++;
-                    }
-                    p = parsePosCharGroup(pattern.substring(ptr + 1, ptr2));
-                }
-
-                // now ptr 2 is at ], so we want ptr to be at the next char
-                ptr = ptr2 + 1;
             } else if (c == '^') {
                 p = parseStartString();
                 ptr++;
@@ -188,7 +186,8 @@ public class Parse {
             } 
             assert(p != null);
 
-            // now check for unary ops
+            // now check for unary ops.
+            // unary ops are ?, +, *, {n,m} ...
             if (ptr <= e && isUnaryOp(pattern.charAt(ptr))) {
                 char op = pattern.charAt(ptr);
                 if (op == '?') {
@@ -200,6 +199,10 @@ public class Parse {
                 } else if (op == '*') {
                     p = parseStar(p);
                     ptr++;
+                } else if (op == '{') {
+                    int end = braces.get(ptr);
+                    int[] range = Utils.getRangeForQuantiferString(pattern.substring(ptr + 1, end));
+                    p = parseQuantifierNode(expr, range[0], range[1]);
                 }
             }
 
