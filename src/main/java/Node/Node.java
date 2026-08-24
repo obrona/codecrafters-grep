@@ -1,6 +1,7 @@
 package Node;
 
 import java.util.ArrayList;
+import State.State;
 
 // represents a node in the automata
 
@@ -12,10 +13,11 @@ import java.util.ArrayList;
 public class Node {
     public ArrayList<Node> nexts = new ArrayList<>();
 
-    public boolean match(int idx, String s) {
+    public boolean match(State state) {
         boolean ans = false;
         for (Node n : nexts) {
-            ans |= n.match(idx, s);
+            ans |= n.match(state);
+            if (ans) break;
         }
         return ans;
     }

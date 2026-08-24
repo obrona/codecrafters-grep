@@ -1,5 +1,7 @@
 package Node;
 
+import State.State;
+
 public class CharNode extends Node {
     char c;
 
@@ -9,14 +11,17 @@ public class CharNode extends Node {
     }
 
     @Override
-    public boolean match(int idx, String s) {
-        if (idx == s.length()) return false;
-        if (!(s.charAt(idx) == c)) return false;
+    public boolean match(State state) {
+        if (!state.matchChar(c)) return false;
 
+        state.advanceCurrIdx();
         boolean ans = false;
         for (Node n : nexts) {
-            ans |= n.match(idx + 1, s);
+            ans |= n.match(state);
+            if (ans) break;
         }
+        state.undo();
+        
         return ans;
     }
 }

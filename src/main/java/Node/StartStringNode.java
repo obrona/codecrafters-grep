@@ -1,5 +1,7 @@
 package Node;
 
+import State.State
+
 // for the start string anchor ^
 public class StartStringNode extends Node {
     public StartStringNode() {
@@ -7,13 +9,13 @@ public class StartStringNode extends Node {
     }
 
     @Override
-    public boolean match(int idx, String s) {
-        if (idx != 0) return false;
+    public boolean match(State state) {
+        if (!state.matchStartString()) return false;
 
         boolean ans = false;
-        
         for (Node n : nexts) {
-            ans |= n.match(idx, s);
+            ans |= n.match(state);
+            if (ans) break;
         }
         
         return ans;

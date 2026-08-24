@@ -1,19 +1,23 @@
 package Node;
 
+import State.State;
+
 public class DigitNode extends Node {
     public DigitNode() {
         super();
     }
 
     @Override
-    public boolean match(int idx, String s) {
-        if (idx == s.length()) return false;
-        if (!Character.isDigit(s.charAt(idx))) return false;
+    public boolean match(State state) {
+        if (!state.matchDigit()) return false;
 
+        state.advanceCurrIdx();
         boolean ans = false;
         for (Node n : nexts) {
-            ans |= n.match(idx + 1, s);
+            ans |= n.match(state);
+            if (ans) break;
         }
+        state.undo();
         
         return ans;
     }

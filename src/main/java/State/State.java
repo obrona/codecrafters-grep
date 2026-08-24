@@ -17,79 +17,74 @@ public class State {
         undoStack = new Stack<>();
     }
 
-    void advanceCurrIdx() {
+    public void advanceCurrIdx() {
         currIdx++;
         undoStack.add(() -> currIdx--);
     }
 
-    void advanceStartIdx() {
+    public void advanceStartIdx() {
         startIdx++;
-        undoStack.add(() -> startIdx--);
+        int temp = currIdx;
+        currIdx = startIdx;
+        undoStack.add(() -> {
+            startIdx--;
+            currIdx = temp;
+        });
     }
 
-    boolean isEnd() {
+    public boolean isEnd() {
         return currIdx == word.length();
     }
 
 
-    void undo() {
+    public void undo() {
         if (undoStack.isEmpty()) return;
         undoStack.pop().run();
     }
 
-    boolean matchAlphaNumeric() {
+    public boolean matchAlphaNumeric() {
         if (currIdx == word.length()) return false;
 
         char c = word.charAt(currIdx);
         if (!Character.isLetterOrDigit(c) && c != '_') return false;
 
-        advanceCurrIdx();
         return true;
     }
 
-    boolean matchChar(char c) {
+    public boolean matchChar(char c) {
         if (currIdx == word.length()) return false;
         if (word.charAt(currIdx) != c) return false;
-        advanceCurrIdx();
         return true;
     }
 
-    boolean matchDigit() {
+    public boolean matchDigit() {
         if (currIdx == word.length()) return false;
         if (!Character.isDigit(word.charAt(currIdx))) return false;
-        advanceCurrIdx();
         return true;
     }
 
-    boolean matchPosCharGroup(HashSet<Character> group) {
+    public boolean matchPosCharGroup(HashSet<Character> group) {
         if (currIdx == word.length()) return false;
         if (!group.contains(word.charAt(currIdx))) return false;
-        advanceCurrIdx();
         return true;
     }
 
-    boolean matchNegCharGroup(HashSet<Character> group) {
+    public boolean matchNegCharGroup(HashSet<Character> group) {
         if (currIdx == word.length()) return false;
         if (group.contains(word.charAt(currIdx))) return false;
-        advanceCurrIdx();
         return true;
     }
 
-    boolean matchWildcard() {
+    public boolean matchWildcard() {
         if (currIdx == word.length()) return false;
-        advanceCurrIdx();
         return true;
     }
 
-    boolean matchStartString() {
+    public boolean matchStartString() {
         return currIdx == 0;
     }
 
-    boolean matchEndString() {
+    public boolean matchEndString() {
         return currIdx == word.length();
     }
-
-   
-
-
 }

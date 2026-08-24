@@ -1,5 +1,7 @@
 package Node;
 
+import java.lang.Thread.State;
+
 public class EndNode extends Node {
 
     public EndNode() {
@@ -7,7 +9,7 @@ public class EndNode extends Node {
     }
     
     @Override
-    public boolean match(int idx, String s) {
+    public boolean match(State state) {
         return true;
     }
 }

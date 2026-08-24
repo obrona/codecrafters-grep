@@ -2,6 +2,8 @@ package Node;
 
 import java.util.HashSet;
 
+import State.State;
+
 public class PosCharGroupNode extends Node {
     HashSet<Character> charSet = new HashSet<>();
 
@@ -13,16 +15,16 @@ public class PosCharGroupNode extends Node {
     }
 
     @Override
-    public boolean match(int idx, String s) {
-        if (idx == s.length()) return false;
+    public boolean match(State state) {
+        if (!state.matchPosCharGroup(charSet)) return false;
         
-        char c = s.charAt(idx);
-        if (!charSet.contains(c)) return false;
-
+        state.advanceCurrIdx();
         boolean ans = false;
         for (Node n : nexts) {
-            ans |= n.match(idx + 1, s);
+            ans |= n.match(state);
         }
+        state.undo();
+        
         return ans;
     }
 

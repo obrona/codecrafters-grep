@@ -1,5 +1,6 @@
 package Node;
 
+import State.State;
 import java.util.HashSet;
 
 public class NegCharGroupNode extends Node {
@@ -14,14 +15,15 @@ public class NegCharGroupNode extends Node {
     }
 
     @Override
-    public boolean match(int idx, String s) {
-        if (idx == s.length()) return false;
-        if (charSet.contains(s.charAt(idx))) return false;
+    public boolean match(State state) {
+        if (!state.matchNegCharGroup(charSet)) return false;
 
         boolean ans = false;
         for (Node n : nexts) {
-            ans |= n.match(idx + 1, s);
+            ans |= n.match(state);
         }
+        state.undo();
+
         return ans;
     }
 }
