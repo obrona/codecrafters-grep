@@ -31,7 +31,7 @@ public class Parse {
     }
 
     boolean isUnaryOp(char c) {
-        return c == '?' || c == '+';
+        return c == '?' || c == '+' || c == '*';
     }
 
 
@@ -61,6 +61,16 @@ public class Parse {
         start.addNext(expr.first);
         start.addNext(end);
         expr.second.addNext(end);
+        return new Pair<>(start, end);
+    }
+
+    Pair<Node,Node> parseStar(Pair<Node,Node> expr) {
+        Node start = new Node();
+        Node end = new Node();
+        start.addNext(expr.first);
+        start.addNext(end);
+        expr.second.addNext(end);
+        end.addNext(expr.first);
         return new Pair<>(start, end);
     }
 
@@ -186,6 +196,9 @@ public class Parse {
                     ptr++;
                 } else if (op == '+') {
                     p = parsePlus(p);
+                    ptr++;
+                } else if (op == '*') {
+                    p = parseStar(p);
                     ptr++;
                 }
             }
