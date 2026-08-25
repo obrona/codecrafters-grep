@@ -194,7 +194,7 @@ public class Parse {
                     ptr += 2;
                 } else if (Character.isDigit(charClass)) {
                     int start = ptr + 1;
-                    int end = s;
+                    int end = start;
                     while (end <= e && Character.isDigit(pattern.charAt(end))) end++;
                     int id = Integer.parseInt(pattern.substring(start, end));
                     p = parseBackReference(id);

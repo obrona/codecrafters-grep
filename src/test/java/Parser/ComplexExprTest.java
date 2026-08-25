@@ -158,6 +158,4 @@ public class ComplexExprTest {
         assertFalse(n.match(new State("abcddf")));
         assertFalse(n.match(new State("ababccdef")));
     }
-
-    
 }

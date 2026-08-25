@@ -2,10 +2,10 @@ package State;
 
 import Node.QuantifierNode;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
-import java.util.ArrayList;
 
 public class State {
     private final String word;
@@ -16,7 +16,7 @@ public class State {
 
     private final HashMap<QuantifierNode, Integer> quantiferNodeStore = new HashMap<>();
 
-    private final HashMap<Integer, ArrayList<Integer>> captureGroupRange = new HashMap<>();
+    private final HashMap<Integer, int[]> captureGroupRange = new HashMap<>();
 
     public State(String word) {
         this.word = word;
@@ -55,21 +55,29 @@ public class State {
     }
 
     public void startCapture(int id) {
-        if (!captureGroupRange.containsKey(id)) {
-            captureGroupRange.put(id, new ArrayList<>());
+        boolean contains = captureGroupRange.containsKey(id);
+        if (!contains) {
+            captureGroupRange.put(id, new int[] {currIdx, -1});
+            undoStack.add(() -> captureGroupRange.remove(id));
+        } else {
+            int[] r = captureGroupRange.get(id);
+            int prev = r[0];
+            r[0] = currIdx;
+            undoStack.add(() -> r[0] = prev);
         }
-        captureGroupRange.get(id).add(currIdx);
-        undoStack.add(() -> captureGroupRange.get(id).removeLast());
+        
     }
 
     public void endCapture(int id) {
-        captureGroupRange.get(id).add(currIdx);
-        undoStack.add(() -> captureGroupRange.get(id).removeLast());
+        int[] r = captureGroupRange.get(id);
+        int prev = r[1];
+        r[1] = currIdx;
+        undoStack.add(() -> r[1] = prev);
     }
 
     public int getCaptureLen(int id) {
-        ArrayList<Integer> r = captureGroupRange.get(id);
-        return r.get(1) - r.get(0);
+        int[] r = captureGroupRange.get(id);
+        return r[1] - r[0];
     }
 
     public boolean isEnd() {
@@ -129,8 +137,15 @@ public class State {
     }
 
     public boolean matchBackReference(int id) {
-        ArrayList<Integer> range = captureGroupRange.get(id);
-        int s = range.get(0), e = range.get(1), len = e - s;
+        int[] r = captureGroupRange.get(id);
+        System.out.println(id + ' ' + Arrays.toString(r));
+
+        // range can be null as the capture group did not capture anything.
+        // eg (a)|b|c\1, if branch 3 is used, c\1, \1 did not capture anything.
+        // return false, not right behaviour.
+        if (r == null) return false;
+
+        int s = r[0], e = r[1], len = e - s;
         if (word.length() - currIdx < len) return false;
         for (int i = 0; i < len; i++) {
             if (word.charAt(currIdx + i) != word.charAt(s + i)) return false;

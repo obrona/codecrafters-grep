@@ -10,6 +10,7 @@
 * {n,m}: match at least n and at most m times
 * {n}: match exactly n times
 * {n,}: match at least n times
+* backreferences: eg `cat and \1` matches `cat and cat`
 
 Expressions quantified by `*`, `+`, or `{...}` must consume at least one character on every successful match. Zero-width quantified expressions such as `(a?)*`, `(a?)+`, and `(a?){2,}` are invalid and may cause infinite recursion. An expression such as `(ab?){2}` is valid because every repetition consumes at least the mandatory `a`.
 
@@ -18,6 +19,8 @@ Eg for reference ((a)(b))
 1. ((a)(b))
 2. (a)
 3. (b) 
+
+In (a|b)+\1, the backreference \1 captures only the single character matched by the group on its final (most recent) iteration of the + loop — not the whole string consumed by (a|b)+.
 
 ### Rules
 * no \+\+
