@@ -25,7 +25,4 @@ public class BackReferenceNode extends Node {
         return ans;
 
     }
-
-
-
 }

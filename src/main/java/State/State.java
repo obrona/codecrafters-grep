@@ -55,7 +55,10 @@ public class State {
     }
 
     public void startCapture(int id) {
-        captureGroupRange.getOrDefault(id, new ArrayList<>()).add(currIdx);
+        if (!captureGroupRange.containsKey(id)) {
+            captureGroupRange.put(id, new ArrayList<>());
+        }
+        captureGroupRange.get(id).add(currIdx);
         undoStack.add(() -> captureGroupRange.get(id).removeLast());
     }
 
@@ -129,7 +132,9 @@ public class State {
         ArrayList<Integer> range = captureGroupRange.get(id);
         int s = range.get(0), e = range.get(1), len = e - s;
         if (word.length() - currIdx < len) return false;
-        if (word.substring(currIdx, currIdx + len) != word.substring(s, e)) return false;
+        for (int i = 0; i < len; i++) {
+            if (word.charAt(currIdx + i) != word.charAt(s + i)) return false;
+        }
         return true;
     }
 }
