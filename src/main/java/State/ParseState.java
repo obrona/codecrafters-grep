@@ -1,13 +1,17 @@
 package State;
 
 public class ParseState {
-    int captureGroupCount = 0;
+    int captureGroupCount = 1;
 
-    public int getCaptureGroupCnt() {
+    public int getCaptureGrpCnt() {
         return this.captureGroupCount;
     }
 
-    public void incrCaptureGroupCount() {
+    public int getAndIncrCaptureGrpCnt() {
+        return this.captureGroupCount++;
+    }
+
+    public void incrCaptureGrpCnt() {
         this.captureGroupCount++;
     }
 }

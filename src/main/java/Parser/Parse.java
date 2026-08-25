@@ -9,14 +9,18 @@ import Pair.Pair;
 import Node.AlphaNumericNode;
 import Node.CharNode;
 import Node.DigitNode;
+import Node.EndCaptureNode;
 import Node.EndNode;
 import Node.EndStringNode;
 import Node.PosCharGroupNode;
 import Node.QuantifierNode;
+import Node.StartCaptureNode;
 import Node.StartNode;
 import Node.StartStringNode;
 import Node.WildcardNode;
 import Node.NegCharGroupNode;
+import Node.BackReferenceNode;
+import State.ParseState;
 import State.State;
 
 // invariant: each expr has exactly 1 node as the start (entry into the expr) and 1 node
@@ -120,6 +124,19 @@ public class Parse {
         return new Pair<>(n, n);
     }
 
+    Pair<Node,Node> parseCapture(Pair<Node,Node> expr, int id) {
+        StartCaptureNode start = new StartCaptureNode(id);
+        EndCaptureNode end = new EndCaptureNode(id);
+        start.addNext(expr.first);
+        expr.second.addNext(end);
+        return new Pair<>(start, end);
+    }
+
+    Pair<Node,Node> parseBackReference(int id) {
+        Node n = new BackReferenceNode(id);
+        return new Pair<>(n, n);
+    }
+
     Pair<Node,Node> concatPair(Pair<Node,Node> expr1, Pair<Node,Node> expr2) {
         if (expr1 == null) return expr2;
         if (expr2 == null) return expr1;
@@ -130,7 +147,7 @@ public class Parse {
 
    
 
-    Pair<Node,Node> parse(int s, int e, String pattern) {
+    Pair<Node,Node> parse(int s, int e, String pattern, ParseState parseState) {
         ArrayList<Pair<Node,Node>> alts = new ArrayList<>();
         Pair<Node,Node> expr = null;
 
@@ -151,9 +168,13 @@ public class Parse {
             Pair<Node,Node> p = null;
             if (c == '(') {
                 int braceEnd = braces.get(ptr);
-                p = parse(ptr + 1, braceEnd - 1, pattern);
+                int id = parseState.getAndIncrCaptureGrpCnt();
+                p = parse(ptr + 1, braceEnd - 1, pattern, parseState);
+                p = parseCapture(p, id);
                 ptr = braceEnd + 1;
-            } else if (c == '[') {
+            } 
+            
+            else if (c == '[') {
                 int end = braces.get(ptr);
                 if (pattern.charAt(ptr + 1) == '^') {
                     p = parseNegCharGroup(pattern.substring(ptr + 2, end));
@@ -161,15 +182,27 @@ public class Parse {
                     p = parsePosCharGroup(pattern.substring(ptr + 1, end));
                 }
                 ptr = end + 1;
-            } else if (c == '\\') {
+            } 
+            
+            else if (c == '\\') {
                 int charClass = pattern.charAt(ptr + 1);
                 if (charClass == 'd') {
                     p = parseDigit();
+                    ptr += 2;
                 } else if (charClass == 'w') {
                     p = parseAlphaNumeric();
+                    ptr += 2;
+                } else if (Character.isDigit(charClass)) {
+                    int start = ptr + 1;
+                    int end = s;
+                    while (end <= e && Character.isDigit(pattern.charAt(end))) end++;
+                    int id = Integer.parseInt(pattern.substring(start, end));
+                    p = parseBackReference(id);
+                    ptr = end;
                 }
-                ptr += 2;
-            } else if (c == '^') {
+            } 
+            
+            else if (c == '^') {
                 p = parseStartString();
                 ptr++;
             } else if (c == '$') {
@@ -223,7 +256,8 @@ public class Parse {
     }
 
     public Node getNFA() {
-        Pair<Node,Node> expr = parse(0, pattern.length() - 1, pattern);
+        ParseState parseState = new ParseState();
+        Pair<Node,Node> expr = parse(0, pattern.length() - 1, pattern, parseState);
         Node n = new StartNode();
         Node end = new EndNode();
         n.addNext(expr.first);
