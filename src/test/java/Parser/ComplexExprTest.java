@@ -158,4 +158,16 @@ public class ComplexExprTest {
         assertFalse(n.match(new State("abcddf")));
         assertFalse(n.match(new State("ababccdef")));
     }
+
+    @Test
+    public void testExpressionUsingAllGrammarFeatures() {
+        // Covers anchors, literals, alternation, concatenation, capture groups,
+        // a backreference, both character-group forms, wildcard, \d, \w,
+        // and every supported quantifier form: ?, +, *, {n}, {n,m}, and {n,}.
+        Node n = new Parse("^((a|b)+)\\1[xy]?[^z]*.\\d{2}\\w{1,2}c{2}d{1,}$").getNFA();
+
+        assertTrue(n.match(new State("ababxMN#42q7ccddd")));
+        assertFalse(n.match(new State("abbaxMN#42q7ccddd")));  // "ab" is followed by "ba", not "ab"
+        assertFalse(n.match(new State("ababxMz#42q7ccddd")));  // z is excluded by [^z]
+    }
 }
