@@ -80,4 +80,21 @@ public class TestBackReference {
         assertTrue(n.match(new State("a a y a a")));
         assertFalse(n.match(new State("a a y b b")));
     }
+
+    @Test
+    public void testCaptureInsideRepeatedGroupUsesLastIteration() {
+        Node n = new Parse("^((a|b)+)\\2$").getNFA();
+        assertTrue(n.match(new State("abb")));  // group 2's last capture is "b"
+        assertFalse(n.match(new State("aba"))); // group 2's last capture is "b", not "a"
+    }
+
+    @Test
+    public void testNestedBackReferencesWithCharacterGroupsAndQuantifiers() {
+        Node n = new Parse("^(([ab]+)([xy]*)\\2\\3) \\1$").getNFA();
+
+        assertTrue(n.match(new State("abxyabxy abxyabxy")));
+        assertTrue(n.match(new State("aaxxaaxx aaxxaaxx")));
+        assertFalse(n.match(new State("abxyabxx abxyabxx")));
+        assertFalse(n.match(new State("abxyabxy abxyabyx")));
+    }
 }
