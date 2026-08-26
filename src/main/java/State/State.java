@@ -2,7 +2,6 @@ package State;
 
 import Node.QuantifierNode;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
@@ -138,7 +137,6 @@ public class State {
 
     public boolean matchBackReference(int id) {
         int[] r = captureGroupRange.get(id);
-        System.out.println(id + ' ' + Arrays.toString(r));
 
         // range can be null as the capture group did not capture anything.
         // eg (a)|b|c\1, if branch 3 is used, c\1, \1 did not capture anything.

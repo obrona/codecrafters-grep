@@ -23,10 +23,6 @@ public class TestBackReference {
 
     @Test
     public void testNestedBackReference() {
-        // Group 1: ('(cat) and \2')
-        // Group 2: (cat)
-        // \2 refers to "cat"
-        // \1 refers to "'cat and cat'"
         String pattern = "('(cat) and \\2') is the same as \\1";
         Parse p = new Parse(pattern);
         Node n = p.getNFA();
@@ -50,6 +46,7 @@ public class TestBackReference {
         Parse p = new Parse(pattern);
         Node n = p.getNFA();
         assertTrue(n.match(new State("aba aba")));
+        assertTrue(n.match(new State("aabaa aabaa")));
         assertFalse(n.match(new State("aabaa aba")));
     }
 
@@ -67,6 +64,20 @@ public class TestBackReference {
     @Test
     public void testBackReferenceToEarlierGroup() {
         Node n = new Parse("(a)|b|c\\1").getNFA();
+
+        // is true because "a" in "ca" matches the branch (a).
+        assertTrue(n.match(new State("ca")));
+        assertTrue(n.match(new State("b")));
+        assertTrue(n.match(new State("a")));
+
+        n = new Parse("^((a)|b|c\\2)").getNFA();
         assertFalse(n.match(new State("ca")));
+    }
+
+    @Test
+    public void testComplexBackReference() {
+        Node n = new Parse("((a|b)+ \\2) [xy]+ \\1").getNFA();
+        assertTrue(n.match(new State("a a y a a")));
+        assertFalse(n.match(new State("a a y b b")));
     }
 }
