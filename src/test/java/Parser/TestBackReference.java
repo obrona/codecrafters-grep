@@ -75,6 +75,17 @@ public class TestBackReference {
     }
 
     @Test
+    public void testAlternationWithBackReferences() {
+        Node referenceFirstBranch = new Parse("^((cat)|(dog))\\2$").getNFA();
+        assertTrue(referenceFirstBranch.match(new State("catcat")));
+        assertFalse(referenceFirstBranch.match(new State("dogdog")));
+
+        Node referenceSecondBranch = new Parse("^((cat)|(dog))\\3$").getNFA();
+        assertTrue(referenceSecondBranch.match(new State("dogdog")));
+        assertFalse(referenceSecondBranch.match(new State("catcat")));
+    }
+
+    @Test
     public void testComplexBackReference() {
         Node n = new Parse("((a|b)+ \\2) [xy]+ \\1").getNFA();
         assertTrue(n.match(new State("a a y a a")));
