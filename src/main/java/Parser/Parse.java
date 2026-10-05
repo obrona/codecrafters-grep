@@ -1,9 +1,7 @@
 package Parser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import static Parser.Utils.matchBraces;
 import Node.Node;
 import Pair.Pair;
 import Node.AlphaNumericNode;
@@ -28,11 +26,9 @@ import State.State;
 
 public class Parse {
     String pattern;
-    HashMap<Integer,Integer> braces;
 
     public Parse(String pattern) {
         this.pattern = pattern;
-        braces = matchBraces(pattern);
     }
 
     boolean isUnaryOp(char c) {
@@ -147,13 +143,18 @@ public class Parse {
 
    
 
-    Pair<Node,Node> parse(int s, int e, String pattern, ParseState parseState) {
+    Pair<Pair<Node,Node>, Integer> parse(int s, String pattern, ParseState parseState) {
         ArrayList<Pair<Node,Node>> alts = new ArrayList<>();
         Pair<Node,Node> expr = null;
 
         int ptr = s;
-        while (ptr <= e) {
+        while (ptr < pattern.length()) {
             char c = pattern.charAt(ptr);
+
+            if (c == ')') {
+                ptr++;
+                break;
+            }
             
             // if we encounter a |, expr stores the expr in the branching path so just push into alts
             if (c == '|') {
@@ -167,15 +168,14 @@ public class Parse {
             
             Pair<Node,Node> p = null;
             if (c == '(') {
-                int braceEnd = braces.get(ptr);
                 int id = parseState.getAndIncrCaptureGrpCnt();
-                p = parse(ptr + 1, braceEnd - 1, pattern, parseState);
-                p = parseCapture(p, id);
-                ptr = braceEnd + 1;
+                var res = parse(ptr + 1, pattern, parseState);
+                p = parseCapture(res.first, id);
+                ptr = res.second;
             } 
             
             else if (c == '[') {
-                int end = braces.get(ptr);
+                int end = pattern.indexOf(']', ptr);
                 if (pattern.charAt(ptr + 1) == '^') {
                     p = parseNegCharGroup(pattern.substring(ptr + 2, end));
                 } else {
@@ -195,7 +195,7 @@ public class Parse {
                 } else if (Character.isDigit(charClass)) {
                     int start = ptr + 1;
                     int end = start;
-                    while (end <= e && Character.isDigit(pattern.charAt(end))) end++;
+                    while (end < pattern.length() && Character.isDigit(pattern.charAt(end))) end++;
                     int id = Integer.parseInt(pattern.substring(start, end));
                     p = parseBackReference(id);
                     ptr = end;
@@ -219,7 +219,7 @@ public class Parse {
 
             // now check for unary ops.
             // unary ops are ?, +, *, {n,m} ...
-            if (ptr <= e && isUnaryOp(pattern.charAt(ptr))) {
+            if (ptr < pattern.length() && isUnaryOp(pattern.charAt(ptr))) {
                 char op = pattern.charAt(ptr);
                 if (op == '?') {
                     p = parseQuestionMark(p);
@@ -231,7 +231,7 @@ public class Parse {
                     p = parseStar(p);
                     ptr++;
                 } else if (op == '{') {
-                    int end = braces.get(ptr);
+                    int end = pattern.indexOf('}', ptr);
                     int[] range = Utils.getRangeForQuantiferString(pattern.substring(ptr + 1, end));
                     p = parseQuantifierNode(p, range[0], range[1]);
                     ptr = end + 1;
@@ -249,15 +249,16 @@ public class Parse {
         
         // now check if we have alts
         if (alts.size() > 0) {
-            return parseAlt(alts);
+            return new Pair<Pair<Node, Node>, Integer>(parseAlt(alts), ptr);
         } else {
-            return expr;
+            return new Pair<Pair<Node, Node>, Integer>(expr, ptr);
         }
     }
 
     public Node getNFA() {
         ParseState parseState = new ParseState();
-        Pair<Node,Node> expr = parse(0, pattern.length() - 1, pattern, parseState);
+        var res = parse(0, pattern, parseState);
+        var expr = res.first;
         Node n = new StartNode();
         Node end = new EndNode();
         n.addNext(expr.first);
